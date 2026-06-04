@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خريطة التحول الرقمي · لجنة النظر في الأعذار</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=El+Messiri:wght@400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&family=Amiri:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root{
+    --emerald-900:#072a20; --emerald-800:#0a3a2c; --emerald:#0f4c3a;
+    --emerald-600:#166952; --emerald-500:#1f7d63;
+    --gold-700:#a47e2b; --gold:#c9a44c; --gold-400:#e6c976; --gold-200:#f3e4bd;
+    --cream:#f7f4ec; --cream-deep:#efe9db; --paper:#fffdf8;
+    --ink:#23271f; --muted:#6b7166; --danger:#9a3324; --danger-soft:#fbeae6;
+    --success: #10b981;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Tajawal',sans-serif;color:var(--ink);background:var(--cream);
+    background-image:radial-gradient(circle at 12% 8%,rgba(201,164,76,.07),transparent 40%),
+        radial-gradient(circle at 88% 92%,rgba(15,76,58,.06),transparent 45%);
+    -webkit-font-smoothing:antialiased;line-height:1.6}
+::selection{background:var(--gold);color:var(--emerald-900)}
+h1,h2,h3,h4{font-family:'El Messiri',sans-serif;font-weight:700;line-height:1.35}
+
+.ornament{display:inline-flex;align-items:center;gap:.6rem;justify-content:center}
+.ornament .line{height:1px;width:48px;background:linear-gradient(90deg,transparent,var(--gold))}
+.ornament .line.rev{background:linear-gradient(90deg,var(--gold),transparent)}
+.ornament .dot{color:var(--gold);font-size:.7rem}
+
+/* action bar */
+#action-buttons{position:fixed;top:1.25rem;left:1.25rem;z-index:60;display:flex;flex-direction:column;gap:.75rem}
+#downloadBtn{cursor:pointer;border:none;font-family:'Tajawal';font-weight:700;font-size:.95rem;color:var(--emerald-900);
+    background:linear-gradient(135deg,var(--gold-400),var(--gold));padding:.85rem 1.5rem;border-radius:999px;
+    display:flex;align-items:center;gap:.6rem;
+    box-shadow:0 10px 30px -8px rgba(164,126,43,.6),inset 0 0 0 1.5px rgba(255,255,255,.4);
+    transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+#downloadBtn:hover{transform:translateY(-3px)}
+#downloadBtn i{font-size:1.15rem}
+#imgBtn{cursor:pointer;border:1px solid var(--gold-200);font-family:'Tajawal';font-weight:600;font-size:.78rem;
+    color:var(--emerald);background:var(--paper);padding:.55rem 1rem;border-radius:999px;
+    display:flex;align-items:center;gap:.5rem;box-shadow:0 6px 16px -10px rgba(15,76,58,.4);transition:transform .3s}
+#imgBtn:hover{transform:translateY(-2px)}
+#loading{display:none;align-items:center;gap:.5rem;background:var(--paper);color:var(--emerald);
+    padding:.7rem 1.2rem;border-radius:999px;font-weight:700;font-size:.85rem;
+    box-shadow:0 8px 24px -8px rgba(15,76,58,.4);border:1px solid var(--gold-200)}
+#loading.show{display:flex}
+
+/* page scaffolding */
+#content-to-print{width:100%}
+.sheet{max-width:62rem;margin:0 auto;padding:2.5rem 1.4rem 2rem}
+.html2pdf__page-break{height:0}
+
+/* section header */
+.shead{position:relative;text-align:center;margin-bottom:2.2rem;padding-top:1rem}
+.shead .ghost{position:absolute;top:-1.4rem;right:50%;transform:translateX(50%);
+    font-family:'El Messiri';font-size:6rem;font-weight:700;color:rgba(15,76,58,.05);z-index:0;line-height:1}
+.shead .kicker{position:relative;display:inline-block;font-family:'El Messiri';font-size:.72rem;color:var(--gold-700);
+    background:var(--gold-200);padding:.3rem 1rem;border-radius:999px;margin-bottom:.8rem;font-weight:600}
+.shead h2{position:relative;font-size:clamp(1.4rem,3.5vw,1.95rem);color:var(--emerald)}
+.shead p.intro{position:relative;max-width:42rem;margin:.7rem auto 0;color:var(--muted);font-weight:400;font-size:.95rem}
+.shead .ornament{margin-top:.9rem}
+
+/* ===== COVER ===== */
+.hero{position:relative;overflow:hidden;text-align:center;color:#fff;border-radius:32px;
+    padding:3.6rem 2rem 3.2rem;margin-bottom:2rem;
+    background:radial-gradient(circle at 50% -20%,var(--emerald-600),transparent 60%),
+        linear-gradient(160deg,var(--emerald-800),var(--emerald) 55%,var(--emerald-900));
+    box-shadow:0 30px 60px -25px rgba(7,42,32,.7)}
+.hero::before{content:"";position:absolute;inset:0;opacity:.10;pointer-events:none;
+    background-image:linear-gradient(45deg,var(--gold) 1px,transparent 1px),linear-gradient(-45deg,var(--gold) 1px,transparent 1px);
+    background-size:26px 26px}
+.hero::after{content:"";position:absolute;inset:14px;border:1.5px solid rgba(201,164,76,.45);border-radius:24px;pointer-events:none}
+.hero-inner{position:relative;z-index:2}
+.logo-ring{width:152px;height:152px;margin:0 auto 1.5rem;position:relative;cursor:pointer;border-radius:26px;
+    display:flex;align-items:center;justify-content:center;background:var(--paper);
+    box-shadow:0 0 0 3px var(--emerald-900),0 0 0 5px var(--gold),0 14px 32px -8px rgba(0,0,0,.5)}
+.logo-ring img{width:100%;height:100%;object-fit:contain;padding:16px;border-radius:20px}
+#upload-hint{position:absolute;inset:0;border-radius:26px;background:rgba(7,42,32,.78);display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:.3rem;color:var(--gold-400);opacity:0;transition:opacity .3s}
+.logo-ring:hover #upload-hint{opacity:1}
+#upload-hint i{font-size:1.3rem}#upload-hint span{font-size:.65rem;font-weight:700;color:#fff}
+.eyebrow{font-family:'El Messiri';color:var(--gold-400);font-size:.85rem;font-weight:500;margin-bottom:1rem;display:block}
+.hero h1{font-size:clamp(1.9rem,5vw,3rem);margin-bottom:.4rem}
+.hero .sub{font-family:'Tajawal',sans-serif;color:var(--gold-200);font-size:clamp(1.1rem,3vw,1.5rem);margin-top:.5rem;font-weight:500}
+.hero p.lead{max-width:46rem;margin:1.6rem auto 0;color:rgba(255,255,255,.82);font-size:1rem;font-weight:300}
+.cover-meta{display:flex;justify-content:center;gap:2rem;margin-top:1.8rem;flex-wrap:wrap}
+.cover-meta div{font-size:.78rem;color:rgba(255,255,255,.7)}
+.cover-meta b{display:block;font-family:'El Messiri';color:var(--gold-400);font-size:.9rem;margin-bottom:.1rem}
+
+/* ===== Table of contents ===== */
+.toc{max-width:46rem;margin:0 auto}
+.toc-item{display:flex;align-items:center;gap:.9rem;padding:.95rem 1.2rem;background:var(--paper);
+    border:1px solid var(--cream-deep);border-right:4px solid var(--gold);border-radius:14px;margin-bottom:.7rem;
+    box-shadow:0 10px 26px -22px rgba(7,42,32,.45);transition:transform .3s}
+.toc-item:hover{transform:translateX(-4px)}
+.toc-item .n{flex-shrink:0;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    font-family:'El Messiri';font-weight:700;font-size:1rem;background:linear-gradient(135deg,var(--emerald-600),var(--emerald));color:var(--gold-400)}
+.toc-item .meta{display:flex;flex-direction:column;min-width:0}
+.toc-item .ttl{font-family:'El Messiri';color:var(--emerald);font-size:1rem;font-weight:600;line-height:1.3}
+.toc-item .sub{font-size:.74rem;color:var(--muted);font-weight:400}
+.toc-item .leader{flex:1;border-bottom:2px dotted #d8d0bd;height:0;margin:0 .6rem;transform:translateY(8px)}
+.toc-item .pg{flex-shrink:0;font-family:'El Messiri';font-weight:700;color:var(--gold-700);font-size:1.05rem;min-width:1.4rem;text-align:center}
+.toc-note{text-align:center;color:var(--muted);font-size:.8rem;font-family:'Tajawal',sans-serif;font-weight:500;margin-top:1.4rem}
+
+/* ===== Challenge cards ===== */
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem}
+.challenge{position:relative;background:var(--paper);border-radius:20px;padding:2rem 1.5rem 1.6rem;
+    box-shadow:0 14px 36px -22px rgba(7,42,32,.4);border:1px solid var(--cream-deep);overflow:hidden;
+    transition:transform .4s cubic-bezier(.2,.8,.2,1),box-shadow .4s}
+.challenge::before{content:"";position:absolute;top:0;right:0;left:0;height:4px;background:linear-gradient(90deg,var(--danger),#c1503f)}
+.challenge:hover{transform:translateY(-6px)}
+.challenge .num{position:absolute;top:1rem;left:1.2rem;font-family:'El Messiri';font-size:2.4rem;color:var(--cream-deep);font-weight:700;line-height:1}
+.challenge .ic{width:54px;height:54px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#fbeae6,#f6d8d1);color:var(--danger);font-size:1.4rem;margin-bottom:1rem}
+.challenge h3{font-size:1.1rem;color:var(--ink);margin-bottom:.5rem}
+.challenge p{font-size:.88rem;color:var(--muted);font-weight:400;line-height:1.7}
+
+/* exec summary band */
+.exec{background:linear-gradient(150deg,var(--paper),var(--cream));border:1px solid var(--cream-deep);
+    border-right:5px solid var(--gold);border-radius:18px;padding:1.6rem 1.8rem;margin-bottom:2.4rem;
+    box-shadow:0 14px 34px -24px rgba(7,42,32,.4)}
+.exec h3{color:var(--emerald);font-size:1.1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+.exec h3 i{color:var(--gold)}
+.exec p{color:#444;font-weight:400;font-size:.95rem}
+
+/* ===== Timeline ===== */
+.timeline{position:relative;max-width:52rem;margin:0 auto;padding:1rem 0}
+.timeline .spine{position:absolute;top:0;bottom:0;right:27px;width:3px;border-radius:3px;
+    background:linear-gradient(var(--gold-400),var(--gold),var(--gold-700))}
+.t-row{position:relative;padding-right:72px;margin-bottom:2rem}
+.t-row:last-child{margin-bottom:0}
+.t-node{position:absolute;right:6px;top:6px;width:46px;height:46px;border-radius:50%;display:flex;align-items:center;
+    justify-content:center;font-size:1.15rem;z-index:2;box-shadow:0 0 0 4px var(--cream),0 8px 18px -6px rgba(0,0,0,.35)}
+.t-node.g{background:linear-gradient(135deg,var(--emerald-600),var(--emerald));color:var(--gold-400)}
+.t-node.gold{background:linear-gradient(135deg,var(--gold-400),var(--gold));color:var(--emerald-900)}
+.t-card{background:var(--paper);border-radius:18px;padding:1.3rem 1.4rem;box-shadow:0 14px 34px -22px rgba(7,42,32,.4);
+    border:1px solid var(--cream-deep);border-right:4px solid var(--gold)}
+.t-card.dark{background:linear-gradient(150deg,var(--emerald),var(--emerald-800));color:#fff;border-right-color:var(--gold-400)}
+.t-card .step{font-family:'El Messiri';font-size:.7rem;font-weight:600;color:var(--gold-700);display:block;margin-bottom:.25rem}
+.t-card.dark .step{color:var(--gold-400)}
+.t-card h3{font-size:1.12rem;color:var(--emerald);margin-bottom:.45rem}
+.t-card.dark h3{color:var(--gold-400)}
+.t-card p{font-size:.88rem;color:var(--muted);font-weight:400;line-height:1.7}
+.t-card.dark p{color:rgba(255,255,255,.85)}
+
+/* ===== Analytics page ===== */
+.dash{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.stat{background:var(--paper);border-radius:18px;padding:1.4rem 1rem;text-align:center;border:1px solid var(--cream-deep);
+    box-shadow:0 12px 30px -22px rgba(7,42,32,.4);position:relative;overflow:hidden}
+.stat::after{content:"";position:absolute;top:0;right:0;left:0;height:3px;background:linear-gradient(90deg,var(--gold-400),var(--gold))}
+.stat .v{font-family:'El Messiri';font-size:1.7rem;color:var(--emerald);font-weight:700;line-height:1}
+.stat .l{font-size:.74rem;color:var(--muted);margin-top:.35rem}
+.stat .ic{color:var(--gold);font-size:1rem;margin-bottom:.5rem}
+
+.chart-wrap{display:grid;grid-template-columns:1.4fr 1fr;gap:1.3rem;align-items:stretch}
+.panel{background:var(--paper);border-radius:20px;padding:1.5rem;border:1px solid var(--cream-deep);box-shadow:0 14px 34px -24px rgba(7,42,32,.4)}
+.panel h3{color:var(--emerald);font-size:1.02rem;margin-bottom:1.2rem;display:flex;align-items:center;gap:.5rem}
+.panel h3 i{color:var(--gold)}
+/* bar chart */
+.bars{display:flex;align-items:flex-end;justify-content:space-between;gap:.6rem;height:180px;padding-top:.5rem}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.bar{width:100%;max-width:34px;border-radius:8px 8px 0 0;background:linear-gradient(var(--emerald-500),var(--emerald));position:relative}
+.bar.acc{background:linear-gradient(var(--gold-400),var(--gold))}
+.bar span{position:absolute;top:-1.25rem;left:50%;transform:translateX(-50%);font-size:.62rem;color:var(--muted);font-weight:700;white-space:nowrap}
+.bar-lbl{font-size:.62rem;color:var(--muted);margin-top:.45rem;font-weight:600}
+/* rings */
+.rings{display:flex;flex-direction:column;gap:1rem}
+.ring-row{display:flex;align-items:center;gap:1rem}
+.ring-row .txt h4{font-size:.9rem;color:var(--ink);margin-bottom:.1rem}
+.ring-row .txt p{font-size:.74rem;color:var(--muted);font-weight:400}
+
+/* benefit list under analytics */
+.why{display:grid;grid-template-columns:1fr 1fr;gap:.9rem;margin-top:1.8rem}
+.why .item{display:flex;gap:.8rem;background:var(--paper);border:1px solid var(--cream-deep);border-radius:14px;padding:1rem;
+    box-shadow:0 8px 22px -20px rgba(7,42,32,.5)}
+.why .item i{color:var(--gold-700);font-size:1.1rem;margin-top:.15rem}
+.why .item h4{font-size:.92rem;color:var(--emerald);margin-bottom:.15rem}
+.why .item p{font-size:.8rem;color:var(--muted);font-weight:400}
+
+/* ===== Reference tracking page ===== */
+.journey{background:var(--paper);border:1px solid var(--cream-deep);border-radius:20px;padding:1.6rem;margin-bottom:1.8rem;
+    box-shadow:0 14px 34px -24px rgba(7,42,32,.4)}
+.journey .jhead{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1.3rem}
+.journey .ref{font-family:'El Messiri';color:var(--emerald);font-size:.95rem}
+.journey .ref span{color:var(--gold-700)}
+.chip{font-size:.7rem;font-weight:700;padding:.25rem .8rem;border-radius:999px;background:var(--gold-200);color:var(--gold-700)}
+.steps-line{display:flex;align-items:flex-start;justify-content:space-between;position:relative}
+.steps-line::before{content:"";position:absolute;top:18px;right:8%;left:8%;height:2px;background:var(--cream-deep);z-index:0}
+.jstep{position:relative;z-index:1;text-align:center;flex:1}
+.jstep .d{width:38px;height:38px;border-radius:50%;margin:0 auto .5rem;display:flex;align-items:center;justify-content:center;
+    font-size:.85rem;background:var(--emerald);color:var(--gold-400);box-shadow:0 0 0 4px var(--paper)}
+.jstep.done .d{background:var(--gold);color:var(--emerald-900)}
+.jstep .t{font-size:.72rem;color:var(--ink);font-weight:700}
+.jstep .time{font-size:.62rem;color:var(--muted)}
+
+.track-feats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+.track{background:var(--paper);border-radius:16px;padding:1.3rem 1.1rem;border:1px solid var(--cream-deep);
+    border-top:3px solid var(--gold);box-shadow:0 12px 30px -24px rgba(7,42,32,.4)}
+.track i{color:var(--emerald);font-size:1.3rem;margin-bottom:.6rem}
+.track h4{font-size:.95rem;color:var(--emerald);margin-bottom:.3rem}
+.track p{font-size:.8rem;color:var(--muted);font-weight:400;line-height:1.65}
+
+/* ===== Comparison table ===== */
+.cmp{width:100%;border-collapse:separate;border-spacing:0;background:var(--paper);border-radius:18px;overflow:hidden;
+    box-shadow:0 16px 40px -28px rgba(7,42,32,.5);border:1px solid var(--cream-deep)}
+.cmp th{font-family:'El Messiri';font-size:.95rem;padding:1rem;text-align:center;color:#fff}
+.cmp th.aspect{background:var(--emerald-900);width:30%}
+.cmp th.before{background:var(--danger)}
+.cmp th.after{background:linear-gradient(135deg,var(--emerald-600),var(--emerald))}
+.cmp td{padding:.85rem 1rem;font-size:.84rem;border-bottom:1px solid var(--cream-deep);vertical-align:middle}
+.cmp tr:last-child td{border-bottom:none}
+.cmp td.aspect{font-weight:700;color:var(--emerald);background:var(--cream);font-size:.84rem}
+.cmp td.before{color:#8a3a2c}
+.cmp td.after{color:var(--emerald);font-weight:600}
+.cmp td.before i{color:var(--danger);margin-left:.3rem}
+.cmp td.after i{color:var(--gold-700);margin-left:.3rem}
+
+/* ===== Future vision ===== */
+.vision{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem}
+.vcard{position:relative;background:linear-gradient(155deg,var(--paper),var(--cream));border:1px solid var(--cream-deep);
+    border-radius:18px;padding:1.5rem;box-shadow:0 14px 34px -26px rgba(7,42,32,.45);overflow:hidden}
+.vcard .vic{width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+    background:var(--emerald);color:var(--gold-400);font-size:1.2rem;margin-bottom:.9rem}
+.vcard h3{font-size:1.02rem;color:var(--emerald);margin-bottom:.4rem}
+.vcard p{font-size:.85rem;color:var(--muted);font-weight:400;line-height:1.7}
+.vcard .soon{position:absolute;top:1rem;left:1rem;font-size:.6rem;font-weight:700;color:var(--gold-700);
+    background:var(--gold-200);padding:.2rem .55rem;border-radius:999px}
+
+/* value KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:2rem}
+.kpi{background:var(--paper);border-radius:16px;padding:1.3rem .8rem;text-align:center;border:1px solid var(--cream-deep);
+    box-shadow:0 8px 22px -18px rgba(7,42,32,.5);position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,rgba(201,164,76,.12),transparent 70%)}
+.kpi .kic{font-size:1.4rem;color:var(--emerald);margin-bottom:.5rem;position:relative}
+.kpi.alt .kic{color:var(--gold-700)}
+.kpi .big{font-family:'El Messiri';font-size:1.02rem;color:var(--ink);font-weight:700;position:relative}
+.kpi .small{font-size:.72rem;color:var(--muted);position:relative}
+
+/* recommendation / signatures */
+.recommend{background:linear-gradient(150deg,var(--paper),var(--cream));border-radius:24px;padding:2.4rem 2rem;text-align:center;
+    border:1px solid var(--cream-deep);box-shadow:0 20px 50px -30px rgba(7,42,32,.5);position:relative;overflow:hidden}
+.recommend::before{content:"";position:absolute;top:0;right:0;left:0;height:5px;background:linear-gradient(90deg,var(--gold-400),var(--gold),var(--gold-700))}
+.recommend h3{color:var(--emerald);font-size:1.35rem;display:flex;align-items:center;justify-content:center;gap:.6rem;margin-bottom:.9rem}
+.recommend h3 i{color:var(--gold)}
+.recommend p.body{max-width:42rem;margin:0 auto 1.6rem;color:#444;font-size:.95rem;font-weight:400}
+.recommend .tag{color:var(--emerald);font-weight:800;background:var(--gold-200);padding:.1rem .5rem;border-radius:6px}
+.approve{display:inline-flex;align-items:center;gap:.6rem;background:linear-gradient(135deg,var(--emerald-600),var(--emerald));
+    color:var(--gold-400);font-family:'El Messiri';font-weight:600;font-size:.95rem;padding:.7rem 1.8rem;border-radius:999px;
+    box-shadow:0 12px 28px -12px rgba(15,76,58,.6);margin-bottom:.4rem}
+.approve i{color:var(--gold-400)}
+.sign-divider{height:1px;background:var(--cream-deep);margin:1.6rem auto;max-width:20rem}
+.sign-label{font-family:'El Messiri';color:var(--muted);font-size:.78rem;margin-bottom:1.2rem;display:block}
+.signs{display:flex;justify-content:center;align-items:stretch;flex-wrap:wrap}
+.sign{padding:0 2rem;text-align:center}
+.sign .role{display:block;font-size:.7rem;font-weight:700;margin-bottom:.3rem}
+.sign .role.gold{color:var(--gold-700)}.sign .role.green{color:var(--emerald)}
+.sign .name{font-family:'El Messiri';font-weight:600;color:var(--ink);font-size:.92rem}
+.sign-sep{width:1px;background:var(--cream-deep)}
+.foot-credit{text-align:center;margin-top:1.8rem;color:var(--muted);font-size:.8rem;font-family:'Tajawal',sans-serif;font-weight:500}
+
+/* animations */
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;animation:rise .8s cubic-bezier(.2,.8,.2,1) forwards}
+.d1{animation-delay:.1s}.d2{animation-delay:.2s}.d3{animation-delay:.3s}.d4{animation-delay:.4s}
+.exporting .reveal{animation:none;opacity:1;transform:none}
+
+@media(max-width:768px){
+    .grid-3,.track-feats,.dash{grid-template-columns:1fr}
+    .dash{grid-template-columns:1fr 1fr}
+    .chart-wrap,.why,.vision,.kpis{grid-template-columns:1fr}
+    .kpis{grid-template-columns:1fr 1fr}
+    .sheet{padding:1.6rem 1rem}
+    #action-buttons{top:auto;bottom:1rem;left:1rem;right:1rem}
+    #downloadBtn{justify-content:center}
+    .shead .ghost{font-size:4rem}
+}
+
+/* ===== طباعة / حفظ PDF أصلي ===== */
+@page{ size:A4 portrait; margin:11mm; }
+@media print{
+    html,body{background:var(--cream)!important;
+        -webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+    body{background-image:none!important;}
+    #action-buttons{display:none!important;}
+    .reveal{opacity:1!important;animation:none!important;transform:none!important;}
+    .sheet{max-width:none!important;width:100%!important;margin:0!important;padding:0 4mm!important;}
+    .html2pdf__page-break{break-after:page;page-break-after:always;height:0;}
+    .hero{box-shadow:none!important;}
+    .challenge,.t-row,.kpi,.stat,.track,.vcard,.toc-item,.journey,
+    .cmp,.feature,.recommend,.panel,.exec,.shead{break-inside:avoid;page-break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<div id="action-buttons">
+    <button onclick="savePDF()" id="downloadBtn"><i class="fas fa-file-pdf"></i> حفظ / تحميل PDF</button>
+    <button onclick="generatePDF()" id="imgBtn"><i class="fas fa-image"></i> تحميل كصورة (احتياطي)</button>
+    <div id="loading"><i class="fas fa-spinner fa-spin"></i> جارٍ تجهيز المستند…</div>
+</div>
+
+<div id="content-to-print">
+
+<!-- ============ PAGE 1 · COVER ============ -->
+<div class="sheet">
+    <header class="hero reveal">
+        <div class="hero-inner">
+            <div class="logo-ring" onclick="document.getElementById('logo-upload').click()">
+                <svg id="logo-slot" viewBox="0 0 120 120" width="100%" height="100%" style="padding:14px;border-radius:50%">
+                    <path d="M28 32 Q60 18 92 32" fill="none" stroke="#c9a44c" stroke-width="3" stroke-linecap="round"/>
+                    <circle cx="60" cy="40" r="3" fill="#c9a44c"/>
+                    <g stroke="#0f4c3a" stroke-width="3" fill="#fffdf8" stroke-linejoin="round">
+                        <path d="M60 53 C50 47 38 47 30 51 L30 85 C38 81 50 81 60 87 Z"/>
+                        <path d="M60 53 C70 47 82 47 90 51 L90 85 C82 81 70 81 60 87 Z"/>
+                    </g>
+                    <line x1="60" y1="53" x2="60" y2="87" stroke="#c9a44c" stroke-width="3"/>
+                    <path d="M38 61 H52 M38 69 H52 M68 61 H82 M68 69 H82" stroke="#c9a44c" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+                <img id="display-logo" alt="شعار جامعة الطائف" style="display:none">
+                <div id="upload-hint"><i class="fas fa-arrow-up-from-bracket"></i><span>اضغط لإضافة الشعار</span></div>
+                <input type="file" id="logo-upload" accept="image/*" style="display:none" onchange="loadLogo(event)">
+            </div>
+            <span class="eyebrow">كلية إدارة الأعمال · جامعة الطائف</span>
+            <h1>خريطة التحول الرقمي</h1>
+            <div class="sub">لسير عمل «لجنة النظر في الأعذار»</div>
+            <p class="lead">رؤية تطويرية تهدف إلى أتمتة الإجراءات، وتقليص الأخطاء اليدوية، وتسريع اتخاذ القرار،
+                وبناء ذاكرة مؤسسية ذكية معززة بحوكمة سيبرانية كاملة عبر الربط المباشر مع Microsoft 365.</p>
+            <div class="cover-meta">
+                <div><b>وثيقة مقترح</b>عرض تطويري للاعتماد</div>
+                <div><b>الجهة</b>لجنة النظر في الأعذار</div>
+                <div><b>الحالة</b>بانتظار الموافقة والربط التقني</div>
+            </div>
+        </div>
+    </header>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 2 · TABLE OF CONTENTS ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">۰۰</span>
+        <span class="kicker">دليل الوثيقة</span>
+        <h2>الفهرس</h2>
+        <p class="intro">محتويات خريطة التحول الرقمي لسير عمل لجنة النظر في الأعذار الهيكلية والسيبرانية.</p>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+    <div class="toc">
+        <div class="toc-item"><div class="n">۰۱</div>
+            <div class="meta"><span class="ttl">المقدمة التنفيذية والتحديات</span><span class="sub">واقع الإجراءات الحالية</span></div>
+            <div class="leader"></div><div class="pg">٣</div></div>
+        <div class="toc-item"><div class="n">۰۲</div>
+            <div class="meta"><span class="ttl">خريطة العمل التقنية وهندسة الربط السحابي</span><span class="sub">أتمتة الطلبات عبر Power Automate & SSO</span></div>
+            <div class="leader"></div><div class="pg">٤</div></div>
+        <div class="toc-item"><div class="n">۰۳</div>
+            <div class="meta"><span class="ttl">لوحة الإحصاءات وصناعة القرار</span><span class="sub">القيمة التحليلية للبيانات</span></div>
+            <div class="leader"></div><div class="pg">٥</div></div>
+        <div class="toc-item"><div class="n">۰۴</div>
+            <div class="meta"><span class="ttl">تتبّع الإشارات المرجعية والأرشفة</span><span class="sub">الذاكرة المؤسسية للجنة</span></div>
+            <div class="leader"></div><div class="pg">٦</div></div>
+        <div class="toc-item"><div class="n">۰۵</div>
+            <div class="meta"><span class="ttl">مقارنة الوضع الإجرائي والأمني (قبل وبعد)</span><span class="sub">الأثر المباشر وحوكمة الأمن السيبراني</span></div>
+            <div class="leader"></div><div class="pg">٧</div></div>
+        <div class="toc-item"><div class="n">۰۶</div>
+            <div class="meta"><span class="ttl">الرؤية المستقبلية للتكامل السحابي</span><span class="sub">آفاق التطوير والتوسّع للكلية</span></div>
+            <div class="leader"></div><div class="pg">٨</div></div>
+        <div class="toc-item"><div class="n">۰۷</div>
+            <div class="meta"><span class="ttl">خارطة طريق الاستضافة الرسمية والأمن السيبراني</span><span class="sub">إجراءات التنسيق مع عمادة تقنية المعلومات</span></div>
+            <div class="leader"></div><div class="pg">٩</div></div>
+        <div class="toc-item"><div class="n">۰۸</div>
+            <div class="meta"><span class="ttl">التوصية الاستراتيجية وطلب الاعتماد</span><span class="sub">تنويه المحاكاة التفاعلية والاعتماد</span></div>
+            <div class="leader"></div><div class="pg">١٠</div></div>
+    </div>
+    <p class="toc-note">وثيقة تطويرية — كلية إدارة الأعمال (College of Business Administration)، جامعة الطائف</p>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 3 · EXEC + CHALLENGES ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">01</span>
+        <span class="kicker">الوضع الراهن</span>
+        <h2>المقدمة التنفيذية والتحديات</h2>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+    <div class="exec">
+        <h3><i class="fas fa-quote-right"></i> لمحة تنفيذية</h3>
+        <p>تتعامل اللجنة حالياً مع أعداد متزايدة من طلبات الأعذار عبر إجراءات يدوية متشعّبة، ما يستهلك الوقت
+        ويرفع احتمالية الخطأ ويصعّب الرجوع للقرارات السابقة. تقترح هذه الوثيقة منصّة رقمية موحّدة تعالج هذه التحديات
+        من جذورها، وتحوّل عمل اللجنة إلى منظومة دقيقة وسريعة وقابلة للقياس، معتمدة بالكامل على البنية التحتية المتاحة للجامعة.</p>
+    </div>
+    
+    <div class="exec" style="border-right-color: var(--emerald-600); background: rgba(22,105,82,0.04); margin-top:-1rem; margin-bottom:2.4rem;">
+        <h3 style="color:var(--emerald-600);"><i class="fas fa-shield-halved"></i> حوكمة الأمن السيبراني وحماية البيانات</h3>
+        <p style="font-size:0.9rem; color:#2d3748;">إن أهم ركائز المنصة المقترحة هي حماية بيانات الطلاب والكلية؛ حيث يتم الاعتماد على بروتوكولات الدخول الموحد (SSO) عبر <strong>Microsoft Entra ID</strong>، مما يضمن عزل النظام تماماً عن أي وصول خارجي غير مصرح به، ويلغي الحاجة لحفظ كلمات المرور محلياً، لتصل نسبة الأمان السيبراني إلى <strong>100%</strong>.</p>
+    </div>
+
+    <div class="grid-3">
+        <div class="challenge"><span class="num">01</span><div class="ic"><i class="fas fa-hourglass-half"></i></div>
+            <h3>طول الدورة المستندية</h3><p>تعدد الخطوات وتداخلها يبطئ مراجعة الأعذار ويؤخّر اتخاذ القرارات الأكاديمية.</p></div>
+        <div class="challenge"><span class="num">02</span><div class="ic"><i class="fas fa-hand-paper"></i></div>
+            <h3>الإدخال اليدوي والأخطاء</h3><p>الاعتماد على العنصر البشري في نقل البيانات يرفع احتمالية النسيان أو تعبئة النماذج الخاطئة.</p></div>
+        <div class="challenge"><span class="num">03</span><div class="ic"><i class="fas fa-folder-open"></i></div>
+            <h3>صعوبة التتبع والأرشفة</h3><p>تشتّت المرفقات الورقية أو إيميلات الطلاب يصعّب الرجوع للسوابق عند دراسة الحالات المتشابهة.</p></div>
+    </div>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 4 · ROADMAP ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">02</span>
+        <span class="kicker">الحل المقترح</span>
+        <h2>خريطة العمل التقنية وهندسة الربط السحابي</h2>
+        <p class="intro">رحلة الطلب المؤتمتة بالكامل عبر ربط واجهات البوابة بـ Microsoft 365 وأنظمة الكلية السحابية.</p>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+    <div class="timeline">
+        <div class="spine"></div>
+        <div class="t-row"><div class="t-node g"><i class="fas fa-key"></i></div>
+            <div class="t-card"><span class="step">المرحلة الأولى</span><h3>التحقق والتعبئة التلقائية (SSO)</h3>
+            <p>بمجرد تسجيل الدخول بالبريد الجامعي، يتم سحب بيانات الطالب (الاسم الرباعي، الرقم الجامعي) آلياً من الدليل النشط لجامعة الطائف وقفل الخانات لمنع أي تلاعب أو أخطاء إدخال.</p></div></div>
+        
+        <div class="t-row"><div class="t-node gold"><i class="fas fa-arrows-split-up-and-left"></i></div>
+            <div class="t-card"><span class="step">المرحلة الثانية</span><h3>الأتمتة والمعالجة عبر Power Automate</h3>
+            <p>التقاط حزمة البيانات فور ضغط زر الإرسال، وتوجيهها سحابياً لإنشاء سجل مرقّم ومنظم في قوائم SharePoint الخاصة بالكلية مع أرشفة المرفقات الطبية تلقائياً وتسميتها بآلية موحدة.</p></div></div>
+        
+        <div class="t-row"><div class="t-node g"><i class="fas fa-gavel"></i></div>
+            <div class="t-card dark"><span class="step">المرحلة الثالثة</span><h3>البت الفوري والتوثيق الرقمي</h3>
+            <p>تظهر البيانات لحظياً في لوحة تحكم الموظفين واللجنة المختصة، مما يتيح اتخاذ قرار فوري (قبول/رفض) وإشعار الطالب عبر بريده الرسمي آلياً بالتحديثات.</p></div></div>
+    </div>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 5 · ANALYTICS / STATISTICS ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">03</span>
+        <span class="kicker">القيمة التحليلية</span>
+        <h2>لوحة الإحصاءات وصناعة القرار بالبيانات</h2>
+        <p class="intro">تحوّل المنصّة كل طلب إلى بيانات قابلة للقياس، فتمنح اللجنة وصاحب الصلاحية رؤية لحظية دقيقة.</p>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+
+    <div class="dash">
+        <div class="stat"><div class="ic"><i class="fas fa-inbox"></i></div><div class="v">٤٨٢</div><div class="l">إجمالي الطلبات</div></div>
+        <div class="stat"><div class="ic"><i class="fas fa-circle-check"></i></div><div class="v">٣٦٧</div><div class="l">طلبات مقبولة</div></div>
+        <div class="stat"><div class="ic"><i class="fas fa-clock"></i></div><div class="v">١.٥ يوم</div><div class="l">متوسط زمن البتّ</div></div>
+        <div class="stat"><div class="ic"><i class="fas fa-bell"></i></div><div class="v">١٢</div><div class="l">طلبات قيد المراجعة</div></div>
+    </div>
+
+    <div class="chart-wrap">
+        <div class="panel">
+            <h3><i class="fas fa-chart-column"></i> حجم الطلبات الفصلي</h3>
+            <div class="bars">
+                <div class="bar-col"><div class="bar" style="height:45%"><span>62</span></div><div class="bar-lbl">ف1 - 1446</div></div>
+                <div class="bar-col"><div class="bar" style="height:70%"><span>96</span></div><div class="bar-lbl">ف2 - 1446</div></div>
+                <div class="bar-col"><div class="bar acc" style="height:100%"><span>134</span></div><div class="bar-lbl">صيفي 1446</div></div>
+                <div class="bar-col"><div class="bar" style="height:58%"><span>78</span></div><div class="bar-lbl">ف1 - 1447</div></div>
+                <div class="bar-col"><div class="bar" style="height:82%"><span>112</span></div><div class="bar-lbl">ف2 - 1447</div></div>
+            </div>
+        </div>
+        <div class="panel">
+            <h3><i class="fas fa-gauge-high"></i> مؤشرات الأداء</h3>
+            <div class="rings">
+                <div class="ring-row">
+                    <div style="position:relative; width:74px; height:74px; flex-shrink:0;">
+                        <svg viewBox="0 0 120 120" style="width:100%; height:100%;">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#efe9db" stroke-width="11"/>
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#c9a44c" stroke-width="11" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="98" transform="rotate(-90 60 60)"/>
+                        </svg>
+                        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'El Messiri'; font-weight:700; font-size:1.1rem; color:var(--emerald);">70%</div>
+                    </div>
+                    <div class="txt"><h4>تقليص زمن الإجراء</h4><p>مقارنة بالدورة اليدوية الورقية</p></div>
+                </div>
+                <div class="ring-row">
+                    <div style="position:relative; width:74px; height:74px; flex-shrink:0;">
+                        <svg viewBox="0 0 120 120" style="width:100%; height:100%;">
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#efe9db" stroke-width="11"/>
+                            <circle cx="60" cy="60" r="52" fill="none" stroke="#0f4c3a" stroke-width="11" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="16" transform="rotate(-90 60 60)"/>
+                        </svg>
+                        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'El Messiri'; font-weight:700; font-size:1.1rem; color:var(--emerald);">95%</div>
+                    </div>
+                    <div class="txt"><h4>رضا المستفيدين</h4><p>وضوح وشفافية وتحديث لحظي</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="why">
+        <div class="item"><i class="fas fa-chart-pie"></i><div><h4>قرارات مبنية على أرقام</h4><p>رؤية لحظية لأنواع الأعذار ومعدلات القبول تدعم قرارات أكثر عدلاً واتساقاً.</p></div></div>
+        <div class="item"><i class="fas fa-calendar-week"></i><div><h4>رصد المواسم والذروة</h4><p>اكتشاف فترات تكدّس الطلبات (مثل مدة الاختبارات البديلة) للاستعداد المبكر وتوزيع الأحمال.</p></div></div>
+        <div class="item"><i class="fas fa-scale-balanced"></i><div><h4>اتساق المعايير</h4><p>مقارنة القرارات المتشابهة لضمان تطبيق موحّد وعادل لضوابط اللجنة ولائحة الغياب.</p></div></div>
+        <div class="item"><i class="fas fa-file-export"></i><div><h4>تقارير جاهزة للرفع</h4><p>توليد تقارير دورية لعمادة الكلية وإدارة الجامعة بضغطة واحدة دون مجهود ورقي.</p></div></div>
+    </div>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 6 · REFERENCE TRACKING & ARCHIVE ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">04</span>
+        <span class="kicker">الذاكرة المؤسسية</span>
+        <h2>تتبّع الإشارات المرجعية وأرشفة أعمال اللجنة</h2>
+        <p class="intro">كل طلب يحمل رقماً مرجعياً وسجلاً كاملاً لرحلته، فلا يضيع قرار ولا يُنسى إجراء.</p>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+
+    <div class="journey">
+        <div class="jhead">
+            <span class="ref">الرقم المرجعي المحوكم: <span>EXC-2026-0481</span></span>
+            <span class="chip">مكتمل ومؤرشف بـ SharePoint</span>
+        </div>
+        <div class="steps-line">
+            <div class="jstep done"><div class="d"><i class="fas fa-paper-plane"></i></div><div class="t">تقديم الموحد</div><div class="time">10 فبراير</div></div>
+            <div class="jstep done"><div class="d"><i class="fas fa-list-check"></i></div><div class="t">فرز سحابي</div><div class="time">10 فبراير</div></div>
+            <div class="jstep done"><div class="d"><i class="fas fa-magnifying-glass"></i></div><div class="t">تدقيق فني</div><div class="time">11 فبراير</div></div>
+            <div class="jstep done"><div class="d"><i class="fas fa-gavel"></i></div><div class="t">قرار معتمد</div><div class="time">11 فبراير</div></div>
+            <div class="jstep done"><div class="d"><i class="fas fa-box-archive"></i></div><div class="t">أرشفة ذكية</div><div class="time">11 فبراير</div></div>
+        </div>
+    </div>
+
+    <div class="track-feats">
+        <div class="track"><i class="fas fa-fingerprint"></i><h4>سجل تدقيق محوكم (Audit Log)</h4>
+            <p>توثيق مَن اعتمد العذر، ومتى، وملاحظات اللجنة، لضمان أعلى مستويات الشفافية في العمل الأكاديمي.</p></div>
+        <div class="track"><i class="fas fa-magnifying-glass-chart"></i><h4>بحث واسترجاع فوري</h4>
+            <p>الوصول لأي طلب أو قرار سابق خلال ثوانٍ عبر الرقم المرجعي، الرقم الجامعي، أو أستاذ المقرر.</p></div>
+        <div class="track"><i class="fas fa-link"></i><h4>ربط السوابق الأكاديمية</h4>
+            <p>عرض الطلبات السابقة لنفس الطالب تلقائياً لمعرفة معدلات غيابه وتكرار تقديمه للأعذار الطبية.</p></div>
+        <div class="track"><i class="fas fa-shield-halved"></i><h4>حفظ آمن داخل الجامعة</h4>
+            <p>يتم تخزين كافة البيانات والتقارير الطبية داخل مساحات الكلية المؤمنة على Microsoft Cloud، بعيداً عن أي مخاطر فقد.</p></div>
+        <div class="track"><i class="fas fa-clock-rotate-left"></i><h4>مرجعية تاريخية للجان</h4>
+            <p>بناء مرجع فني وتنظيمي للأعوام والفصول القادمة يضمن استمرارية معايير الكلية بدقة.</p></div>
+        <div class="track"><i class="fas fa-user-lock"></i><h4>خصوصية مضبوطة الأدوار</h4>
+            <p>صلاحيات مرنة تمنح أعضاء اللجنة، رؤساء الأقسام، والعمادة، مستويات رؤية محددة حسب الاحتياج الإداري.</p></div>
+    </div>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 7 · BEFORE / AFTER ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">05</span>
+        <span class="kicker">الأثر المباشر</span>
+        <h2>مقارنة الوضع الإجرائي والأمني (قبل وبعد المنصة)</h2>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+    <table class="cmp">
+        <thead><tr><th class="aspect">المعيار الإداري والأمني</th><th class="before">قبل · الإجراء اليدوي الحالي</th><th class="after">بعد · المنصّة الرقمية المقترحة</th></tr></thead>
+        <tbody>
+            <tr><td class="aspect">أمن الحسابات وكلمات المرور</td><td class="before"><i class="fas fa-xmark"></i>مخاطر عالية لوجود كلمات مرور محلية أو إدخال يدوي مبعثر</td><td class="after"><i class="fas fa-check"></i>أمن بنسبة 100% بربط مباشر مع Microsoft 365 بدون حفظ محلي للسرية</td></tr>
+            <tr><td class="aspect">زمن البت في الطلب الأكاديمي</td><td class="before"><i class="fas fa-xmark"></i>أيام متعددة وضياع أوقات الطلاب بين المكاتب</td><td class="after"><i class="fas fa-check"></i>ساعات معدودة من لحظة تقديم العذر حتى قرار اللجنة</td></tr>
+            <tr><td class="aspect">اكتمال المرفقات (تقرير صحة)</td><td class="before"><i class="fas fa-xmark"></i>طلبات ناقصة متكررة وعبارات غير رسمية مثل (ظرف خاص)</td><td class="after"><i class="fas fa-check"></i>حقول إلزامية صارمة ترفض استقبال الطلب بدون المرفق الرسمي المعتمد</td></tr>
+            <tr><td class="aspect">تتبّع حالة الطلب للمستفيد</td><td class="before"><i class="fas fa-xmark"></i>غير متاح؛ يضطر الطالب لمراجعة الكلية يدوياً للسؤال</td><td class="after"><i class="fas fa-check"></i>تتبّع لحظي ومحوكم عبر الرقم المرجعي من أي جهاز</td></tr>
+            <tr><td class="aspect">الأرشفة والاسترجاع التاريخي</td><td class="before"><i class="fas fa-xmark"></i>ملفات ورقية وإيميلات مبعثرة صعبة الجدولة</td><td class="after"><i class="fas fa-check"></i>أرشيف سحابي منظم على SharePoint مع ميزة البحث الفوري بمؤشرات متعددة</td></tr>
+            <tr><td class="aspect">التقارير الإحصائية وحجم العمل</td><td class="before"><i class="fas fa-xmark"></i>تُعدّ يدوياً وتأخذ جهداً كبيراً مع نهاية الفصول</td><td class="after"><i class="fas fa-check"></i>تُولّد آلياً عبر اللوحة التحليلية الجاهزة بضغطة زر واحدة</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 8 · FUTURE VISION ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">06</span>
+        <span class="kicker">آفاق التطوير</span>
+        <h2>الرؤية المستقبلية للتكامل السحابي والأنظمة الجامعية</h2>
+        <p class="intro">تأسيس بنية تحتية برمجية قابلة للنمو السريع تخدم لجان الكلية كافة وتتكامل عمودياً مع أنظمة الجامعة.</p>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+    <div class="vision">
+        <div class="vcard"><span class="soon">مرحلة قريبة</span><div class="vic"><i class="fas fa-mobile-screen-button"></i></div>
+            <h3>إشعارات تلقائية عبر الجوال</h3><p>ربط المنصة بـ Power Automate ليرسل رسائل نصية أو تنبيهات فورية للطالب بمجرد اعتماد لجنته للاختبار البديل أو رفع الحرمان.</p></div>
+        <div class="vcard"><span class="soon">تكامل متقدم</span><div class="vic"><i class="fas fa-plug-circle-bolt"></i></div>
+            <h3>الربط المباشر مع الأنظمة الجامعية</h3><p>التكامل والربط البرمجي مع نظام القبول والتسجيل لسحب جداول الطلاب، المقررات، ونسب الغياب الفعلية آلياً دون كتابتها.</p></div>
+        <div class="vcard"><span class="soon">ذكاء اصطناعي</span><div class="vic"><i class="fas fa-robot"></i></div>
+            <h3>الفرز الذكي والتحقق التلقائي</h3><p>مساعدة اللجنة في فحص التقارير الطبية المرفقة آلياً والتحقق من صحتها من منصة صحة عبر الذكاء الاصطناعي لتسريع المعالجة.</p></div>
+        <div class="vcard"><span class="soon">قابل للتوسّع</span><div class="vic"><i class="fas fa-sitemap"></i></div>
+            <h3>تعميم المنصة على لجان الكلية</h3><p>توسيع عمل النظام ليتضمن لجان التظلمات، لجان المعادلات، وبقية الوحدات الإدارية داخل كلية إدارة الأعمال بنفس القوة والموثوقية.</p></div>
+        <div class="vcard"><span class="soon">حوكمة عليا</span><div class="vic"><i class="fas fa-clipboard-check"></i></div>
+            <h3>لوحات قيادية لمتخذي القرار</h3><p>توفير شاشات قياس أداء متقدمة لعميد الكلية والوكلاء لمتابعة كفاءة اللجان ونسب الإنجاز للفصول الدراسية لحظة بلحظة.</p></div>
+        <div class="vcard"><span class="soon">تحليلات</span><div class="vic"><i class="fas fa-brain"></i></div>
+            <h3>التحليلات التنبؤية للمواسم</h3><p>دراسة الأنماط التاريخية للأعذار والغيابات للتنبؤ بمواسم الذروة ومساعدة الأقسام الأكاديمية على جدولة الاختبارات البديلة بكفاءة.</p></div>
+    </div>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 9 · IT INTEGRATION (NEW) ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">07</span>
+        <span class="kicker">الاعتماد التقني</span>
+        <h2>خارطة طريق الاستضافة الرسمية والأمن السيبراني</h2>
+        <p class="intro">الخطوات الإجرائية المطلوبة من إدارة الكلية للتنسيق مع عمادة تقنية المعلومات لرفع النظام رسمياً.</p>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+    
+    <div class="track-feats">
+        <div class="track"><i class="fas fa-file-signature"></i><h4>١. الخطاب الرسمي</h4>
+            <p>توجيه خطاب من عمادة الكلية إلى عمادة تقنية المعلومات لطلب استضافة المنصة كخدمة رسمية وتخصيص نطاق فرعي (Subdomain) لها.</p></div>
+        <div class="track"><i class="fas fa-server"></i><h4>٢. توفير البيئة المستضيفة</h4>
+            <p>تخصيص مساحة آمنة على خوادم الجامعة (سيرفر محلي أو مساحة SharePoint متقدمة) لرفع ملفات الواجهة الأمامية بعيداً عن الاستضافات الخارجية.</p></div>
+        <div class="track"><i class="fas fa-key"></i><h4>٣. ربط الدخول الموحد (SSO)</h4>
+            <p>طلب تسجيل التطبيق في (Microsoft Entra ID) لإصدار مفاتيح الربط (Client ID) التي تضمن اقتصار الدخول على منسوبي الجامعة فقط.</p></div>
+        <div class="track"><i class="fas fa-shield-virus"></i><h4>٤. الفحص الأمني والموافقة</h4>
+            <p>قيام فريق الأمن السيبراني بالجامعة بفحص الأكواد للتأكد من خلوها من الثغرات ومطابقتها لمعايير الهيئة الوطنية للأمن السيبراني (NCA).</p></div>
+        <div class="track"><i class="fas fa-network-wired"></i><h4>٥. ربط بوابات البيانات (API)</h4>
+            <p>التنسيق لفتح قنوات الاتصال الآمنة (APIs) للسماح للنظام بسحب بيانات الطلاب (الجداول ونسب الغياب) من النظام الأكاديمي.</p></div>
+        <div class="track"><i class="fas fa-rocket"></i><h4>٦. الإطلاق والتدشين الرسمي</h4>
+            <p>نقل النظام من بيئة الاختبار (Testing) إلى بيئة الإنتاج الفعلي (Production) وتدشين المنصة رسمياً للطلاب للعمل بها.</p></div>
+    </div>
+</div>
+
+<div class="html2pdf__page-break"></div>
+
+<!-- ============ PAGE 10 · VALUE + RECOMMENDATION ============ -->
+<div class="sheet">
+    <div class="shead">
+        <span class="ghost">08</span>
+        <span class="kicker">الخلاصة والتوصية</span>
+        <h2>المكتسبات الاستراتيجية والاعتماد التقني</h2>
+        <div class="ornament"><span class="line"></span><i class="fas fa-gem dot"></i><span class="line rev"></span></div>
+    </div>
+    <div class="kpis">
+        <div class="kpi"><div class="kic"><i class="fas fa-bullseye"></i></div><div class="big">دقة 100%</div><div class="small">حماية كاملة من الأخطاء اليدوية</div></div>
+        <div class="kpi alt"><div class="kic"><i class="fas fa-stopwatch"></i></div><div class="big">أسرع بـ 70%</div><div class="small">في دورة المعالجة والمراجعة</div></div>
+        <div class="kpi"><div class="kic"><i class="fas fa-file-signature"></i></div><div class="big">حوكمة كاملة</div><div class="small">أمن وتدقيق وشفافية مطلقة</div></div>
+        <div class="kpi alt"><div class="kic"><i class="fas fa-chart-pie"></i></div><div class="big">قرار بالبيانات</div><div class="small">لوحة تحليلية متكاملة للكلية</div></div>
+    </div>
+
+    <!-- التنويه الأمني والفني الهام للمتحدث في الاجتماع لتأكيد جاهزية النظام والرد التلقائي على العمادة واللجنة -->
+    <div class="exec" style="border-right-color: var(--gold); background: rgba(201,164,76,0.05); margin-top: 1rem; margin-bottom: 2rem;">
+        <h3><i class="fas fa-circle-info" style="color:var(--gold-700);"></i> بيان الجاهزية الأمنية والفنية (تنويه استراتيجي):</h3>
+        <p style="font-size: 0.95rem; color: #23271f; text-align: justify; line-height: 1.7;">
+            إن النسخة الحالية المعروضة للمنصة هي <strong>محاكاة تفاعلية (Mockup) متكاملة</strong> تم تصميمها وهندستها خصيصاً لاختبار وضبط تجربة المستخدم (UX). أما <strong>النسخة النهائية والتشغيلية</strong>، فسيتم ربطها مباشرة ببيئة <strong>Microsoft 365</strong> السحابية المعتمدة لجامعة الطائف عبر بروتوكولات <strong>Microsoft Entra ID</strong> و <strong>Power Automate</strong>. هذا التكامل يضمن أن النظام لن يسمح بدخول أي شخص من خارج النطاق الرسمي للجامعة، كما يلغي تماماً الحاجة لتخزين أو حفظ كلمات مرور الطلاب لدينا، مما يرفع نسبة الأمان إلى <strong>100%</strong> ويخلي تماماً مسؤولية الكلية من أي تسريبات أو ثغرات أمنية، محققاً حوكمة رقمية مثالية.
+        </p>
+    </div>
+
+    <div class="recommend">
+        <h3><i class="fas fa-lightbulb"></i> التوصية</h3>
+        <p class="body">نوصي اللجنة الموقّرة وعمادة الكلية بالموافقة على اعتماد المنصّة والبدء بتفعيلها كـ <span class="tag">مرحلة تجريبية منخفضة المخاطر</span> اعتباراً من الفصل الدراسي الأول القادم للعام الجامعي 1448هـ قياساً للفارق الإجرائي، ومن ثم تعميمها بشكل كامل.</p>
+        <div class="approve"><i class="fas fa-circle-check"></i> نأمل التكرّم بالموافقة على البدء والربط السحابي</div>
+        <div class="sign-divider"></div>
+        <span class="sign-label">مقدّمو المقترح والتحول الرقمي بالكلية</span>
+        <div class="signs">
+            <div class="sign"><span class="role gold">إعداد وصاحب المبادرة</span><span class="name">مدير الدعم الفني ومركز الخدمة بالكلية</span></div>
+            <div class="sign-sep"></div>
+            <div class="sign"><span class="role green">التنفيذ والمراجعة الفنية</span><span class="name">مستشار ولجنة التحول الرقمي بالكلية</span></div>
+        </div>
+    </div>
+    <p class="foot-credit">وثيقة تطويرية محوكمة — كلية إدارة الأعمال (College of Business Administration)، جامعة الطائف</p>
+</div>
+
+</div>
+
+<script>
+var LOGO_DATA = "data:image/png;base64,iVBORw0KGgoAAA...";
+
+function loadLogo(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('display-logo').src = e.target.result;
+            document.getElementById('display-logo').style.display = 'block';
+            document.getElementById('logo-slot').style.display = 'none';
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+async function savePDF() {
+    const loading = document.getElementById('loading');
+    const actionButtons = document.getElementById('action-buttons');
+    
+    loading.classList.add('show');
+    actionButtons.style.display = 'none';
+    document.body.classList.add('exporting');
+
+    const element = document.getElementById('content-to-print');
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    const imgData = canvas.toDataURL('image/jpeg', 1.0);
+    
+    const pdf = new jspdf.jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    
+    pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save('خريطة_التحول_الرقمي_لجنة_الأعذار_المطورة.pdf');
+
+    loading.classList.remove('show');
+    actionButtons.style.display = 'flex';
+    document.body.classList.remove('exporting');
+}
+
+async function generatePDF() {
+    const actionButtons = document.getElementById('action-buttons');
+    actionButtons.style.display = 'none';
+    
+    const element = document.getElementById('content-to-print');
+    const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+    
+    const link = document.createElement('a');
+    link.download = 'خريطة_التحول_الرقمي_المطورة.jpg';
+    link.href = canvas.toDataURL('image/jpeg', 0.9);
+    link.click();
+    
+    actionButtons.style.display = 'flex';
+}
+</script>
+</body>
+</html>
