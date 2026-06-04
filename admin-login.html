@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دخول الموظفين - لجنة النظر في أعذار الطلبة</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1e3a8a; /* أزرق داكن لتمييز بوابة الموظفين */
+            --secondary: #d4af37; /* ذهبي ملكي */
+            --primary-light: #3b82f6;
+            --bg-color: #f4f6f5;
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+            --white: #ffffff;
+            --danger: #ef4444;
+            --border: #e5e7eb;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); }
+
+        .brand-container {
+            display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 25px;
+        }
+        .brand-icon { width: 55px; height: 55px; flex-shrink: 0; }
+        .brand-text { text-align: right; }
+        .brand-text h1 { color: var(--primary); font-size: 1.6rem; font-weight: 800; line-height: 1.1; }
+        .brand-text p { color: var(--text-light); font-size: 0.95rem; font-weight: 600; margin-top: 2px;}
+
+        #login-view {
+            display: flex; justify-content: center; align-items: center; height: 100vh;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        }
+        .login-box {
+            background: var(--white); padding: 40px; border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 420px; text-align: center;
+            border-top: 5px solid var(--secondary);
+        }
+        .login-box h2 { color: var(--primary); margin-bottom: 5px; font-size: 1.3rem; font-weight: 800; }
+        .login-box .subtitle { color: var(--text-light); margin-bottom: 25px; font-size: 0.95rem; font-weight: bold;}
+        .input-group { margin-bottom: 20px; text-align: right; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .input-group input { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; }
+        .input-group input:focus { border-color: var(--secondary); outline: none; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
+        .btn-primary { background: var(--primary); color: var(--white); border: 1px solid var(--primary); padding: 12px; width: 100%; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; font-family: inherit; }
+        .btn-primary:hover { background: var(--secondary); color: var(--primary); border-color: var(--secondary); }
+        .error-msg { color: var(--danger); font-size: 0.85rem; display: none; margin-top: 5px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-view">
+        <div class="login-box">
+            <div class="brand-container">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 10 L90 10 L90 55 C90 85 50 95 50 95 C50 95 10 85 10 55 Z" fill="var(--secondary)"/>
+                        <text x="50" y="62" font-family="Arial, sans-serif" font-size="38" font-weight="bold" fill="var(--primary)" text-anchor="middle">TU</text>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <h1>جامعة الطائف</h1>
+                    <p>كلية إدارة الأعمال</p>
+                </div>
+            </div>
+            
+            <h2>بوابة الموظفين (المركز)</h2>
+            <p class="subtitle">النظام الموحد للجنة الأعذار</p>
+            
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="input-group">
+                    <label>البريد الجامعي (للموظف)</label>
+                    <input type="email" id="admin-email" placeholder="employee@tu.edu.sa" required>
+                    <div id="email-error" class="error-msg">الرجاء إدخال بريد جامعي صحيح للموظفين</div>
+                </div>
+                <div class="input-group">
+                    <label>كلمة المرور</label>
+                    <input type="password" id="admin-password" required>
+                </div>
+                <button type="submit" class="btn-primary">دخول آمن</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        async function handleAdminLogin(event) {
+            event.preventDefault(); 
+            
+            const email = document.getElementById('admin-email').value;
+            const password = document.getElementById('admin-password').value;
+            const errorMsg = document.getElementById('email-error');
+
+            // محاكاة تسجيل دخول الموظف
+            if (email.includes('@tu.edu.sa') && password.length >= 6) {
+                errorMsg.style.display = 'none';
+                localStorage.setItem('isAdminLoggedIn', 'true'); 
+                window.location.href = 'admin-dashboard.html'; // توجيه إلى لوحة الإدارة
+            } else {
+                errorMsg.innerText = "الرجاء إدخال بريد جامعي صحيح وكلمة مرور صالحة.";
+                errorMsg.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
