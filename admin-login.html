@@ -107,7 +107,7 @@
                     // حفظ التوكن في الـ LocalStorage أو Cookies
                     localStorage.setItem('authToken', data.token);
                     // إعادة التوجيه إلى لوحة التحكم
-                    window.location.href = 'dashboard.html'; 
+                    window.location.href = 'admin-dashboard.html'; 
                 } else {
                     errorMsg.innerText = "بيانات الدخول غير صحيحة.";
                     errorMsg.style.display = 'block';
@@ -120,7 +120,7 @@
             if (email.includes('@tu.edu.sa') && password.length >= 6) {
                 errorMsg.style.display = 'none';
                 // حفظ توكن وهمي لمحاكاة الجلسة
-                localStorage.setItem('isLoggedIn', 'true'); 
+                localStorage.setItem('isAdminLoggedIn', 'true'); 
                 // الانتقال إلى الصفحة الرئيسية
                 window.location.href = 'dashboard.html';
             } else {
